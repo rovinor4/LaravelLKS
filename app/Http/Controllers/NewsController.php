@@ -60,8 +60,8 @@ class NewsController extends Controller
     public function store(Request $request)
     {
         try{
-            
 
+            
 
         }catch(\Exception  $e) {
             return response()->json([
