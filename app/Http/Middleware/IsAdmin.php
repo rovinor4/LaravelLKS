@@ -7,7 +7,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthAPI
+class IsAdmin
 {
     /**
      * Handle an incoming request.
@@ -18,20 +18,21 @@ class AuthAPI
     {
         if($request->token){
             $token = $request->token;
-            $user = User::where("remember_token",$token)->first();
+            $user = User::where("remember_token",$token)->where("is_admin",true)->first();
             if($user){
                 return $next($request);
             }else{
                 return response()->json([
-                    'log-out' => true,
-                    'message' => "Invalid token"
-                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                'log-out' => true,
+                'message' => "Only admin can access"
+            ], Response::HTTP_FORBIDDEN);
             }
         }else{
-            return response()->json([
+              return response()->json([
                 'log-out' => true,
-                'message' => "Token and email are not there"
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                'message' => "Only admin can access"
+            ], Response::HTTP_FORBIDDEN);
         }
+
     }
 }

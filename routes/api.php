@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\RatingController;
 use App\Http\Controllers\UserController;
+use App\Models\Rating;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,5 +36,23 @@ Route::prefix("user")->group(function(){
 });
 
 Route::prefix("news")->group(function(){
+    Route::middleware("guest")->group(function(){
+        Route::post("/show/{news:slug}",[NewsController::class,"show"]);
         Route::post("/all",[NewsController::class,"index"]);
+    });        
+
+    
+    Route::middleware(["auth.api","auth.isAdmin"])->group(function(){
+        Route::post("/store",[NewsController::class,"store"]);
+        Route::post("/destroy/{news:slug}",[NewsController::class,"destroy"]);
+    });
+});
+
+Route::prefix("rating")->group(function(){
+    
+    Route::post("/{news:slug}/all",[RatingController::class,"index"]);
+    Route::post("/store",[RatingController::class,"store"]);
+    Route::post("/show/{rating:news_id}",[RatingController::class,"show"]);
+    Route::post("/destroy/{rating}",[RatingController::class,"destroy"]);
+
 })->middleware("auth.api");

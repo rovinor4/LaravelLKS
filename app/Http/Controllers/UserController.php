@@ -48,6 +48,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $userRole = User::$rules;
+        $userRole["email"] .= "|unique:users";
         $userRole["name"] .= "|required";
         $valid = MainController::requestValid($request,$userRole,["name","email","password"]);
 
@@ -59,15 +60,22 @@ class UserController extends Controller
         }
 
         try {
-            
             $uuid = Str::uuid();
             $date = Carbon::now();
             $date = $date->utc();
             $token = hash('sha256', $date."_".$uuid);
             $valid["message"]["remember_token"] = $token;
             $valid["message"]["password"] = Hash::make($valid["message"]["password"]);
+            
+            if(!User::count()){
+                $valid["message"]["is_admin"] = true;
+            }
+            
             $userCreate = User::create($valid["message"]);
     
+
+
+
             return response()->json([
                 "status" => true,
                 "data" => $userCreate

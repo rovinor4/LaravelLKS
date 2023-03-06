@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('ratings', function (Blueprint $table) {
             $table->id();
             $table->foreignId("news_id");
+            $table->foreignId("user_id");
             $table->integer("star")->default(0);
-            $table->text("comment");
+            $table->text("comment")->nullable();
             $table->timestamps();
         });
     }
