@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\News;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class NewsController extends Controller
 {
@@ -13,7 +14,7 @@ class NewsController extends Controller
      */
     public function index(Request $request)
     {
-        try{
+        try {
             // $valid = MainController::requestValid($request,["id" => "required"],["id"]);
             // if(!$valid["status"]){
             //     return response()->json([
@@ -21,37 +22,36 @@ class NewsController extends Controller
             //         "message" => $valid["message"]
             //     ],Response::HTTP_INTERNAL_SERVER_ERROR);
             // }
-    
+
 
 
             $get = null;
-            if($request->search){
+            if ($request->search) {
                 $search = $request->search;
                 $get = News::where('judul', 'like', '%' . $search . '%')
-                            ->orWhere('slug', 'like', '%' . $search . '%')
-                            ->orWhere('isi', 'like', '%' . $search . '%')->paginate(6);
-            }else{
+                    ->orWhere('slug', 'like', '%' . $search . '%')
+                    ->orWhere('isi', 'like', '%' . $search . '%')->paginate(6);
+            } else {
                 $get = News::paginate(6);
             }
-    
-            if($get->count() > 0){
+
+            if ($get->count() > 0) {
                 return response()->json([
                     'status' => true,
-                    'data' => $get 
-                ], 200);   
-            }else{
+                    'data' => $get
+                ], 200);
+            } else {
                 return response()->json([
                     'status' => false,
                     'message' => "No data found"
-                ], Response::HTTP_INTERNAL_SERVER_ERROR);   
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
-        }catch (\Exception  $e) {
+        } catch (\Exception  $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
     }
 
     /**
@@ -59,19 +59,23 @@ class NewsController extends Controller
      */
     public function store(Request $request)
     {
-        try{
+        try {
             $newsLog = News::$rules;
             $valid = $request->validate($newsLog);
 
-            $NewsCreate = News::upsert($valid,["user_id","slug"]);
+            if ($request->file("file")) {
+                $valid["file"] = $request->file('file')->store("public");
+            }
 
-            if($NewsCreate){
+            $NewsCreate = News::upsert($valid, ["user_id", "slug"]);
+
+            if ($NewsCreate) {
                 return response()->json([
                     "status" => true,
                     "data" => $NewsCreate
                 ]);
             }
-        }catch(\Exception  $e) {
+        } catch (\Exception  $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
@@ -84,14 +88,14 @@ class NewsController extends Controller
      */
     public function show(News $news)
     {
-        try{
-            if($news){
+        try {
+            if ($news) {
                 return response()->json([
                     "status" => true,
                     "data" => $news
                 ]);
             }
-        }catch(\Exception  $e) {
+        } catch (\Exception  $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
@@ -102,7 +106,7 @@ class NewsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(News $news,Request $request)
+    public function update(News $news, Request $request)
     {
         // try{
         //     $newsLog = News::$rules;
@@ -113,7 +117,7 @@ class NewsController extends Controller
         //             "message" => $valid["message"]
         //         ],Response::HTTP_INTERNAL_SERVER_ERROR);
         //     }
-            
+
         //     $NewsCreate = $news->update($valid["message"]);
 
         //     if($NewsCreate){
@@ -135,15 +139,15 @@ class NewsController extends Controller
      */
     public function destroy(News $news)
     {
-        try{
+        try {
             $NewsCreate = $news->delete();
-            if($NewsCreate){
+            if ($NewsCreate) {
                 return response()->json([
                     "status" => true,
                     "delete" => $NewsCreate
                 ]);
             }
-        }catch(\Exception  $e) {
+        } catch (\Exception  $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()

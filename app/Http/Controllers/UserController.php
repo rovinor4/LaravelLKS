@@ -72,9 +72,6 @@ class UserController extends Controller
             }
             
             $userCreate = User::create($valid["message"]);
-    
-
-
 
             return response()->json([
                 "status" => true,

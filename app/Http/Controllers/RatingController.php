@@ -15,20 +15,20 @@ class RatingController extends Controller
      */
     public function index(News $news)
     {
-        try{
-            $get = Rating::where("news_id",$news->id)->get();
-            if($get->count() > 0){
+        try {
+            $get = Rating::where("news_id", $news->id)->get();
+            if ($get->count() > 0) {
                 return response()->json([
                     'status' => true,
-                    'data' => $get 
-                ], 200);   
-            }else{
+                    'data' => $get
+                ], 200);
+            } else {
                 return response()->json([
                     'status' => false,
                     'message' => "No data found"
-                ], Response::HTTP_INTERNAL_SERVER_ERROR);   
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
-        }catch (\Exception  $e) {
+        } catch (\Exception  $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
@@ -41,18 +41,18 @@ class RatingController extends Controller
      */
     public function store(Request $request)
     {
-        try{
+        try {
             $ratingLog = Rating::$rules;
             $valid = $request->validate($ratingLog);
-            $ratingCreate = Rating::updateOrCreate(["user_id" => $valid["user_id"],"news_id" => $valid["news_id"]],$valid);
+            $ratingCreate = Rating::updateOrCreate(["user_id" => $valid["user_id"], "news_id" => $valid["news_id"]], $valid);
 
-            if($ratingCreate){
+            if ($ratingCreate) {
                 return response()->json([
                     "status" => true,
                     "data" => $ratingCreate
                 ]);
             }
-        }catch(\Exception  $e) {
+        } catch (\Exception  $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
@@ -63,18 +63,21 @@ class RatingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Rating $rating,Request $request)
+    public function show(Rating $rating, Request $request)
     {
-        try{
+        try {
+            $request->validate([
+                "user_id" => "required|exists:users,id"
+            ]);
             $id = $request->user_id;
-            $data = $rating->where("user_id",$id)->get();
-            if($data){
+            $data = $rating->where("user_id", $id)->get();
+            if ($data) {
                 return response()->json([
                     "status" => true,
                     "data" => $data
                 ]);
             }
-        }catch(\Exception  $e) {
+        } catch (\Exception  $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
@@ -94,13 +97,13 @@ class RatingController extends Controller
      */
     public function destroy(Rating $rating)
     {
-        try{
+        try {
             $x = $rating->delete();
             return response()->json([
                 'status' => true,
                 'message' => $x
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }catch(\Exception  $e) {
+        } catch (\Exception  $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()

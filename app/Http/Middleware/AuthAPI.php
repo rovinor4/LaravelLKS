@@ -16,21 +16,21 @@ class AuthAPI
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if($request->token){
+        if ($request->token) {
             $token = $request->token;
-            $user = User::where("remember_token",$token)->first();
-            if($user){
+            $user = User::where("remember_token", $token)->first();
+            if ($user) {
                 return $next($request);
-            }else{
+            } else {
                 return response()->json([
                     'log-out' => true,
                     'message' => "Invalid token"
                 ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
-        }else{
+        } else {
             return response()->json([
                 'log-out' => true,
-                'message' => "Token and email are not there"
+                'message' => "Token are not there"
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

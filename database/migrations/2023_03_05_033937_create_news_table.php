@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId("user_id");
             $table->string("judul");
+            $table->string("file")->nullable();
             $table->string("slug")->unique();
             $table->text("isi");
             $table->timestamps();
